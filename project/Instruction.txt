@@ -1,0 +1,12 @@
+Task : Predict HPV virus infection
+
+1. Understand and describe the data: number, what do they represent, numeric/cat, distributions,
+dimensionality reduction, etc.
+2. Clean data
+3. Preprocess data
+4. Train and evaluate model
+5. Compare clinical-only vs imaging-only vs clinical+imaging
+6. At all steps, analyze, be critical, try to explain data/model behavior/results
+Going farther:
+7. Which features are predictive ?
+8. Compare different ML models
