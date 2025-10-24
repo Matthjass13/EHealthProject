@@ -1,0 +1,70 @@
+Federated Learning (FL) Lab: Implementation and Analysis of FedAvg Variants
+
+1. Objective
+
+The goal of this lab is to implement and compare two variants of the Federated Averaging (FedAvg) algorithm for distributed machine learning:
+
+- Standard FedAvg
+- Weighted FedAvg
+
+You will gain hands-on experience in simulating an FL process, understanding local and global model aggregation mechanisms, and visualizing the effect of data distribution and weighting on model convergence.
+
+2. Description
+
+You will work within the provided Jupyter Notebook, which includes structured cells and hints to guide you through the implementation steps.
+The dataset and model setup are already provided. You are expected to complete the missing parts of the code and produce the requested analysis.
+
+The experiment simulates several clients (local learners), each training a model on their own (possibly unbalanced) data, and a server (aggregator) that combines their updates into a global model.
+
+3. Tasks
+3.1 Implementation
+
+A. Data preparation (select one)
+- Split the data provided in the CSV file.
+- Implement a data loader that discriminates among the different data centers (clients) or partitions the data accordingly.
+
+B. Implement Standard FedAvg
+- Each client trains locally for a number of epochs that you must define and justify.
+- The server averages all local model parameters equally to update the global model.
+
+C. Implement Weighted FedAvg
+- The server aggregates local models proportionally to each client’s weighting factor (e.g., dataset size).
+- Investigate the effects of unbalanced data on the global model.
+
+D. Run multiple communication rounds and store relevant metrics (e.g., global accuracy, loss, and local accuracies).
+
+3.2 Evaluation and Visualization
+You should produce at least the following graphs and let us know their purpose:
+
+- Global accuracy vs. rounds
+Plot test accuracy of the global model at each round
+
+-Global loss vs. rounds	
+Plot average global loss per round
+
+- Per-client accuracy (bar chart)	
+Compare final accuracies of individual clients
+
+- Weighted vs. Unweighted convergence	
+Overlay accuracy curves for both versions	
+
+- Data distribution histogram	
+Show data size per client
+
+All graphs must include titles, axis labels, legends, and proper units when applicable.
+
+
+
+4. Deliverables
+
+At the end of the lab, you must provide:
+A completed Jupyter Notebook with:
+- Correct implementation of both FedAvg versions.
+- Code for all required plots.
+- Brief textual comments explaining your observations.
+- A short paragraph comparing the behavior of FedAvg and Weighted FedAvg (e.g., which converges faster, which is fairer across clients, etc.) and your interpretation.
+- The final presentation.
+
+
+NOTE: Don’t worry if your results are not better than those of a centralized model.
+Consult the lecture slides, identify what could cause this gap, and discuss how (from a future perspective) it might be mitigated or solved.
