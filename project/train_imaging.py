@@ -3,8 +3,11 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import roc_auc_score, roc_curve, precision_recall_curve, auc
-from sklearn.metrics import classification_report, confusion_matrix, precision_recall_fscore_support
+from sklearn.decomposition import PCA
+from sklearn.metrics import (
+    roc_auc_score, roc_curve, precision_recall_curve, auc,
+    classification_report, confusion_matrix, precision_recall_fscore_support
+)
 import numpy as np
 import pandas as pd
 import joblib
@@ -57,7 +60,6 @@ class ImagingNet(nn.Module):
 # 3️⃣ Préparation des données
 # ====================================
 def prepare_imaging_data(ct_data, pt_data, patients_data):
-    # Merge CT/PT
     merged = pd.merge(ct_data, pt_data, on="PatientID", suffixes=("_ct", "_pt"))
     final = pd.merge(merged, patients_data[["PatientID", "Outcome"]], on="PatientID")
 
@@ -79,60 +81,18 @@ def prepare_imaging_data(ct_data, pt_data, patients_data):
     print("\n🔍 Top 10 correlated features with Outcome:")
     print(corr.head(10))
 
-    # Identifier les features trop corrélées à Outcome
+    # Supprimer features trop corrélées
     high_corr = corr[corr > 0.95].index.tolist()
-
-    # Supprimer seulement si ≠ Outcome
     high_corr = [c for c in high_corr if c != "Outcome"]
     if len(high_corr) > 0:
         print(f"\n⚠️ Removing highly correlated features: {high_corr}")
         final = final.drop(columns=[col for col in high_corr if col in final.columns])
 
-    # Vérifier que la colonne Outcome est bien là
     if "Outcome" not in final.columns:
         raise ValueError("❌ 'Outcome' is missing from merged data — check dataset columns!")
 
-    # Séparer X et y
     X = final.drop(columns=["Outcome"]).values
     y = final["Outcome"].astype(int).values
-
-    return X, y
-
-    # Merge CT/PT
-    merged = pd.merge(ct_data, pt_data, on="PatientID", suffixes=("_ct", "_pt"))
-    final = pd.merge(merged, patients_data[["PatientID", "Outcome"]], on="PatientID")
-
-    # Supprimer les colonnes non pertinentes
-    for col in final.columns:
-        if "PatientID" in col or "CenterID" in col:
-            final = final.drop(columns=[col])
-
-    # Encoder les colonnes catégorielles
-    cat_cols = final.select_dtypes(include=["object"]).columns
-    if len(cat_cols) > 0:
-        final = pd.get_dummies(final, columns=cat_cols, drop_first=True)
-
-    # Supprimer les colonnes constantes
-    final = final.loc[:, final.nunique() > 1]
-
-    # Vérifier les corrélations
-    corr = final.corr(numeric_only=True)["Outcome"].abs().sort_values(ascending=False)
-    print("\n🔍 Top 10 correlated features with Outcome:")
-    print(corr.head(10))
-
-    # Supprimer les colonnes suspectes (corr > 0.95)
-    high_corr = corr[corr > 0.95].index.tolist()
-    if len(high_corr) > 1:
-        print(f"\n⚠️ Removing highly correlated features: {high_corr[1:]}")
-        final = final.drop(columns=[col for col in high_corr[1:] if col in final.columns])
-
-    # Séparer features / target
-    if "Outcome" not in final.columns:
-        raise ValueError("❌ La colonne 'Outcome' a été supprimée trop tôt — vérifie tes données d'entrée.")
-
-    X = final.drop(columns=["Outcome"]).values
-    y = final["Outcome"].astype(int).values
-
     return X, y
 
 # ====================================
@@ -166,6 +126,14 @@ if __name__ == "__main__":
     X_train = scaler.fit_transform(X_train)
     X_val = scaler.transform(X_val)
     joblib.dump(scaler, "scaler_imaging.joblib")
+
+    # Réduction de dimension PCA
+    print("\n⚙️ Applying PCA for dimensionality reduction...")
+    pca = PCA(n_components=0.95, random_state=SEED)  # 95% variance conservée
+    X_train = pca.fit_transform(X_train)
+    X_val = pca.transform(X_val)
+    joblib.dump(pca, "pca_imaging.joblib")
+    print(f"✅ PCA reduced dimensionality to {X_train.shape[1]} components")
 
     # Datasets & loaders
     train_loader = DataLoader(ImagingDataset(X_train, y_train), batch_size=32, shuffle=True)
@@ -273,10 +241,12 @@ if __name__ == "__main__":
     plt.legend()
     plt.show()
 
+    pr_auc = auc(rec, prec)
     plt.figure()
-    plt.plot(rec, prec, label="Precision-Recall Curve")
+    plt.plot(rec, prec, label=f"PR AUC = {pr_auc:.3f}")
     plt.xlabel("Recall")
     plt.ylabel("Precision")
     plt.title("Precision-Recall Curve")
     plt.legend()
     plt.show()
+
