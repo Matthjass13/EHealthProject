@@ -98,12 +98,24 @@ def prepare_imaging_data(ct_data, pt_data, patients_data):
 # ====================================
 # 4️⃣ Programme principal
 # ====================================
+
 if __name__ == "__main__":
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    import os
+    import sys
+    
+    # Add project root to Python path
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.append(project_root)
+    
     try:
-        from project.data_utils import Load_data
+        from project.machineLearning.data_utils import Load_data
     except ImportError:
-        from data_utils import Load_data
+        try:
+            from machineLearning.data_utils import Load_data
+        except ImportError:
+            sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+            from machineLearning.data_utils import Load_data
+
 
     # Charger les fichiers
     df_ct = Load_data("project/dataset/data_hn_ct_train.csv")
