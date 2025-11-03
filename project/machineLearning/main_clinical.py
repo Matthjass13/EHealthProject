@@ -1,4 +1,4 @@
-from project.data_utils import Load_data
+from data_utils import Load_data
 import pandas as pd
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
