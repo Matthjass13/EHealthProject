@@ -4,10 +4,14 @@ import numpy as np
 import os
 
 def clean_and_split_data():
-    # Since your script is in project/federatedLearning/
-    # and dataset is in project/dataset/
-    base_path = "C:/VSCode_Projects/E-Health/E-Health_Project/EHealthProject/project/dataset/"  # Go from federatedLearning to project, then into dataset
+    # Get the directory where this script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
     
+    # Use paths relative to the script location
+    base_path = os.path.join(script_dir, "../dataset/")
+    client_data_path = os.path.join(script_dir, "client_data")
+    
+    print(f"Script directory: {script_dir}")
     print(f"Looking for dataset at: {base_path}")
     print(f"Absolute path: {os.path.abspath(base_path)}")
     
@@ -94,10 +98,9 @@ def clean_and_split_data():
     
     # --- SPLIT BY CENTERS ---
     
-    # Create client_data folder in the SAME FOLDER as this script (federatedLearning)
-    client_data_path = "C:/VSCode_Projects/E-Health/E-Health_Project/EHealthProject/project/federatedLearning/client_data"  # This creates it in the federatedLearning folder
+    # Create client_data folder
     os.makedirs(client_data_path, exist_ok=True)
-    print(f"\nCreated client_data folder at: {os.path.abspath(client_data_path)}")
+    print(f"\nCreated client_data folder at: {client_data_path}")
     
     # Find all unique centers in your data
     centers = train_merged['CenterID'].unique()
@@ -119,8 +122,8 @@ def clean_and_split_data():
         print(f"  → {center_train_path}")
         print(f"  → {center_test_path}")
     
-    print(f"\n✓ All client CSV files created in: {os.path.abspath(client_data_path)}")
+    print(f"\n✓ All client CSV files created in: {client_data_path}")
     print("You can now use these files in your FL notebook!")
 
-# Run the function
-clean_and_split_data()
+if __name__ == "__main__":
+    clean_and_split_data()
