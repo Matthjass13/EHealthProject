@@ -1,8 +1,36 @@
-from data_utils import Load_data
+import os
+import sys
+
+# Setup Python path before any other imports
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(project_root)
+
+# Now try to import data_utils
+try:
+    from project.machineLearning.data_utils import Load_data
+except ImportError:
+    try:
+        from machineLearning.data_utils import Load_data
+    except ImportError:
+        sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+        from data_utils import Load_data
+
 import pandas as pd
+import numpy as np
+import random
+import joblib
+import matplotlib.pyplot as plt
+import seaborn as sns
+import torch
+import torch.nn as nn
+from torch.utils.data import Dataset, DataLoader
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.metrics import (
+    precision_recall_fscore_support, roc_auc_score, roc_curve, 
+    precision_recall_curve, auc, classification_report, confusion_matrix
+)
 
 # -----------------------------
 # 1️⃣ Load the files
